@@ -1,27 +1,39 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import mongoose from "mongoose";
+import connectDB from "./config/db";
+import hostelRoutes from "./routes/hostelRoutes";
+import userRoutes from "./routes/userRoutes";
+import partnerRoutes from "./routes/partnerRoutes";
+import wishlistRoutes from "./routes/wishlistRoutes";
+import locationRoutes from "./routes/locationRoutes";
 
-import locationRoutes from "./routes/locationRoutes"; // import after you fix export
+const startServer = async () => {
+  // Load environment variables from .env file
+  dotenv.config();
 
-dotenv.config(); // this line should now work without errors
+  // Connect to MongoDB and wait for it to finish before proceeding
+  await connectDB();
 
-const app = express();
+  const app = express();
 
-app.use(cors());
-app.use(express.json());
+  // Middleware
+  app.use(cors());
+  app.use(express.json());
 
-const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/staynear";
+  // Simple route for checking if the API is up
+  app.get("/", (_req, res) => res.send("API is running successfully"));
+  
+  // API Routes
+  app.use("/api/hostels", hostelRoutes);
+  app.use("/api/users", userRoutes);
+  app.use("/api/partners", partnerRoutes);
+  app.use("/api/wishlist", wishlistRoutes);
+  app.use("/api/locations", locationRoutes);
+  
+  const PORT = process.env.PORT || 5000;
+  
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+};
 
-mongoose.connect(MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch(err => console.error("MongoDB connection error:", err));
-
-app.get("/", (_req, res) => res.send("API is running"));
-
-// Use the routes
-app.use("/api/locations", locationRoutes);
-
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+startServer();
