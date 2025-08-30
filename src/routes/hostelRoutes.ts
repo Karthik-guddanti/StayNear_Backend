@@ -1,14 +1,12 @@
 import express from "express";
-import { searchHostels } from "../controllers/hostelController";
+import { searchHostels, getHostelById } from "../controllers/hostelController";
 
 const router = express.Router();
 
-// This single route handles all searching and filtering
-// e.g., GET /api/hostels/search?lat=...&lng=...&maxPrice=...
+// This route is for searching and filtering
 router.get("/search", searchHostels);
 
-// We can add the GET by ID and POST routes later for the admin panel
-// router.get("/:id", getHostelById);
-// router.post("/", addHostel);
+// This route is for getting a single hostel by its database _id
+router.get("/:id", getHostelById);
 
 export default router;

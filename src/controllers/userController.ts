@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import User, { IUser } from "../models/User";
+import User, { IUser } from "../models/User"; // Make sure IUser is exported from your model
 import jwt from 'jsonwebtoken';
 
 const generateToken = (id: string) => {
@@ -9,10 +9,11 @@ const generateToken = (id: string) => {
 export const registerUser = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
   try {
-    const userExists: IUser | null = await User.findOne({ email });
+    const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'User with this email already exists.' });
     }
+    // 👇 Explicitly type the user object
     const user: IUser = await User.create({ name, email, password });
     if (user) {
       res.status(201).json({
@@ -30,6 +31,7 @@ export const registerUser = async (req: Request, res: Response) => {
 export const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   try {
+    // 👇 Explicitly type the user object
     const user: IUser | null = await User.findOne({ email });
     if (user && (await user.matchPassword(password))) {
       res.json({
