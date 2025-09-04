@@ -1,5 +1,7 @@
+// server/src/routes/hostelRoutes.ts
+
 import express from 'express';
-// Import both functions from the controller
+// ✅ THIS IMPORT REQUIRES BOTH FUNCTIONS TO EXIST IN THE CONTROLLER
 import { searchNearbyHostels, getHostelById } from '../controllers/hostelController';
 
 const router = express.Router();

@@ -1,8 +1,8 @@
+// server/src/controllers/hostelController.ts
+
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import axios from 'axios';
-
-// ✅ This controller now fetches LIVE data from Google, not your database.
 
 const getGenderFromName = (name: string): 'male' | 'female' | 'colive' => {
   const lowerCaseName = name.toLowerCase();
@@ -11,52 +11,80 @@ const getGenderFromName = (name: string): 'male' | 'female' | 'colive' => {
   return 'colive';
 };
 
+const sampleRoomTypes = [['Private', '4-Bed Dorm'], ['4-Bed Dorm', '6-Bed Dorm'], ['Private', '6-Bed Dorm'], ['4-Bed Dorm']];
+const sampleAmenities = [['AC', 'Laundry'], ['Laundry', 'Gym'], ['AC', 'Gym'], ['AC', 'Laundry', 'Gym']];
+
 export const searchNearbyHostels = asyncHandler(async (req: Request, res: Response) => {
   const { lat, lng } = req.query;
-
   if (!lat || !lng) {
     res.status(400);
     throw new Error('Latitude and longitude query parameters are required.');
   }
-
   const GOOGLE_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
-  const radius = 15000; // ✅ Set to 15km as requested
+  const radius = 5000;
   const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius}&type=lodging&keyword=hostel|pg&key=${GOOGLE_API_KEY}`;
 
   try {
     const response = await axios.get(url);
     const results = response.data.results || [];
-
-    // Map Google's data to our Hostel shape
     const formattedHostels = results.map((place: any) => ({
-      _id: place.place_id, // Use Google's place_id as the unique ID
+      _id: place.place_id,
       name: place.name,
       address: place.vicinity,
-      phone: "N/A", // Nearby Search doesn't provide a phone number
-      location: {
-        type: 'Point',
-        coordinates: [place.geometry.location.lng, place.geometry.location.lat],
-      },
+      phone: "N/A",
+      location: { type: 'Point', coordinates: [place.geometry.location.lng, place.geometry.location.lat] },
       rating: place.rating || 4.0,
       reviews: place.user_ratings_total || 0,
       photoUrl: place.photos ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${GOOGLE_API_KEY}` : null,
-      price: Math.floor(Math.random() * (9500 - 6500 + 1)) + 6500, // Assign a random price
-      amenities: [['AC', 'Laundry'], ['Gym'], ['AC']][Math.floor(Math.random() * 3)], // Assign random amenities
-      gender: getGenderFromName(place.name), // Use our smart gender detection
+      amenities: sampleAmenities[Math.floor(Math.random() * sampleAmenities.length)],
+      gender: getGenderFromName(place.name),
+      roomTypes: sampleRoomTypes[Math.floor(Math.random() * sampleRoomTypes.length)],
+      // ❌ REMOVED: Fake price generation is gone
     }));
-
     res.json(formattedHostels);
-
   } catch (error) {
-    console.error("Error fetching from Google API:", error);
     res.status(500);
     throw new Error('Failed to fetch hostel data from Google.');
   }
 });
 
-
 export const getHostelById = asyncHandler(async (req: Request, res: Response) => {
-  // This will require a separate, more detailed implementation later
-  // For now, we'll leave it as a placeholder.
-  res.status(404).json({ message: 'Detail view not implemented for live API yet.' });
+  const { hostelId } = req.params;
+  const GOOGLE_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
+  if (!hostelId) {
+    res.status(400);
+    throw new Error('Hostel ID (Place ID) is required.');
+  }
+  
+  // ✅ NEW: Add 'website' to the fields we request
+  const fields = 'name,formatted_address,formatted_phone_number,photo,rating,user_ratings_total,geometry,website';
+  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${hostelId}&fields=${fields}&key=${GOOGLE_API_KEY}`;
+
+  try {
+    const response = await axios.get(url);
+    const place = response.data.result;
+    if (!place) {
+      res.status(404);
+      throw new Error('Hostel not found with the given ID.');
+    }
+    const formattedHostel = {
+      _id: hostelId,
+      name: place.name,
+      address: place.formatted_address,
+      phone: place.formatted_phone_number || "N/A",
+      website: place.website || "N/A", // ✅ NEW: Add website to the response
+      location: { type: 'Point', coordinates: [place.geometry.location.lng, place.geometry.location.lat] },
+      rating: place.rating || 4.0,
+      reviews: place.user_ratings_total || 0,
+      photoUrl: place.photos ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1200&photoreference=${place.photos[0].photo_reference}&key=${GOOGLE_API_KEY}` : null,
+      amenities: sampleAmenities[Math.floor(Math.random() * sampleAmenities.length)],
+      gender: getGenderFromName(place.name),
+      roomTypes: sampleRoomTypes[Math.floor(Math.random() * sampleRoomTypes.length)],
+      // ❌ REMOVED: Fake price generation is gone
+    };
+    res.json(formattedHostel);
+  } catch (error) {
+    res.status(500);
+    throw new Error('Failed to fetch hostel details.');
+  }
 });
