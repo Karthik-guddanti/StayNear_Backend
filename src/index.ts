@@ -2,37 +2,32 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db";
-import hostelRoutes from "./routes/hostelRoutes";
+
+// --- IMPORT YOUR ROUTERS AND MIDDLEWARE ---
 import userRoutes from "./routes/userRoutes";
-import partnerRoutes from "./routes/partnerRoutes";
-import wishlistRoutes from "./routes/wishlistRoutes";
+import hostelRoutes from "./routes/hostelRoutes";
 import locationRoutes from "./routes/locationRoutes";
+import { notFound, errorHandler } from "./middleware/errorMiddleware";
 
 const startServer = async () => {
-  // Load environment variables from .env file
   dotenv.config();
-
-  // Connect to MongoDB and wait for it to finish before proceeding
   await connectDB();
 
   const app = express();
-
-  // Middleware
   app.use(cors());
   app.use(express.json());
 
-  // Simple route for checking if the API is up
-  app.get("/", (_req, res) => res.send("API is running successfully"));
-  
-  // API Routes
-  app.use("/api/hostels", hostelRoutes);
-  app.use("/api/users", userRoutes);
-  app.use("/api/partners", partnerRoutes);
-  app.use("/api/wishlist", wishlistRoutes);
-  app.use("/api/locations", locationRoutes);
-  
+  // --- CONNECT THE API ROUTES ---
+  // This tells Express how to handle requests to your API
+  app.use('/api/users', userRoutes);
+  app.use('/api/hostels', hostelRoutes);
+  app.use('/api/locations', locationRoutes);
+
+  // --- USE THE ERROR MIDDLEWARE (at the end) ---
+  app.use(notFound);
+  app.use(errorHandler);
+
   const PORT = process.env.PORT || 5000;
-  
   app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 };
 

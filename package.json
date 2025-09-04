@@ -5,26 +5,33 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "dev": "nodemon --watch src --exec ts-node src/index.ts",
-    "data:import": "ts-node seeder.ts",
-    "data:destroy": "ts-node seeder.ts -d"
+    "data:import": "ts-node src/seeder.ts -i",
+    "data:destroy": "ts-node src/seeder.ts -d"
+    
   },
   "dependencies": {
-    "axios": "^1.7.2",
+    "axios": "^1.11.0",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "express-async-handler": "^1.2.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.5.1",
-    "nodemailer": "^7.0.5"
+    "mongoose": "^8.18.0",
+    "nodemailer": "^7.0.5",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
-    "@types/cors": "^2.8.17",
+    "@types/cors": "^2.8.19",
     "@types/express": "^4.17.23",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^20.14.10",
+    "@types/mongoose": "^5.11.96",
+    "@types/node": "^20.19.11",
     "@types/nodemailer": "^7.0.1",
+    "@types/passport": "^1.0.17",
+    "@types/passport-google-oauth20": "^2.0.16",
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.3"

@@ -1,12 +1,15 @@
-import express from "express";
-import { searchHostels, getHostelById } from "../controllers/hostelController";
+import express from 'express';
+// Import both functions from the controller
+import { searchNearbyHostels, getHostelById } from '../controllers/hostelController';
 
 const router = express.Router();
 
-// This route is for searching and filtering
-router.get("/search", searchHostels);
+// Route for searching nearby hostels
+// GET /api/hostels/search?lat=...&lng=...
+router.get('/search', searchNearbyHostels);
 
-// This route is for getting a single hostel by its database _id
-router.get("/:id", getHostelById);
+// Route for getting a single hostel by its ID
+// GET /api/hostels/:hostelId
+router.get('/:hostelId', getHostelById);
 
 export default router;

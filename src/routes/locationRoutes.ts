@@ -1,9 +1,8 @@
-import express from "express";
-import { geocodeLocation } from "../controllers/locationController";
+import express from 'express';
+import { searchLocation } from '../controllers/locationController';
 
 const router = express.Router();
 
-// This must be GET /api/locations/search
-router.get("/search", geocodeLocation);
+router.get('/search', searchLocation);
 
 export default router;
