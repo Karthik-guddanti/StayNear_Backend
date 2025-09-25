@@ -6,6 +6,7 @@ export interface IHostel extends Document {
   gender: 'male' | 'female' | 'colive'; price: number; amenities: string[];
   rating: number; reviews: number;
 }
+
 const hostelSchema = new Schema<IHostel>({
   name: { type: String, required: true },
   address: { type: String, required: true },

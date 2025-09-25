@@ -7,6 +7,7 @@ const generateToken = (id: string) => {
   return jwt.sign({ id }, process.env.JWT_SECRET as string, { expiresIn: '30d' });
 };
 
+
 export const registerUser = asyncHandler(async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
   const userExists: IUser | null = await User.findOne({ email });
@@ -24,6 +25,7 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
     });
   }
 });
+
 
 export const loginUser = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body;

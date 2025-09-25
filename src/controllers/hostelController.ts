@@ -1,5 +1,3 @@
-// server/src/controllers/hostelController.ts
-
 import { Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import axios from 'axios';
@@ -31,7 +29,6 @@ export const searchNearbyHostels = asyncHandler(async (req: Request, res: Respon
       _id: place.place_id,
       name: place.name,
       address: place.vicinity,
-      phone: "N/A",
       location: { type: 'Point', coordinates: [place.geometry.location.lng, place.geometry.location.lat] },
       rating: place.rating || 4.0,
       reviews: place.user_ratings_total || 0,
@@ -39,7 +36,6 @@ export const searchNearbyHostels = asyncHandler(async (req: Request, res: Respon
       amenities: sampleAmenities[Math.floor(Math.random() * sampleAmenities.length)],
       gender: getGenderFromName(place.name),
       roomTypes: sampleRoomTypes[Math.floor(Math.random() * sampleRoomTypes.length)],
-      // ❌ REMOVED: Fake price generation is gone
     }));
     res.json(formattedHostels);
   } catch (error) {
@@ -48,15 +44,15 @@ export const searchNearbyHostels = asyncHandler(async (req: Request, res: Respon
   }
 });
 
+
 export const getHostelById = asyncHandler(async (req: Request, res: Response) => {
   const { hostelId } = req.params;
   const GOOGLE_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
-  if (!hostelId) {
+  if (!hostelId) { 
     res.status(400);
     throw new Error('Hostel ID (Place ID) is required.');
   }
-  
-  // ✅ NEW: Add 'website' to the fields we request
+
   const fields = 'name,formatted_address,formatted_phone_number,photo,rating,user_ratings_total,geometry,website';
   const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${hostelId}&fields=${fields}&key=${GOOGLE_API_KEY}`;
 
@@ -80,7 +76,6 @@ export const getHostelById = asyncHandler(async (req: Request, res: Response) =>
       amenities: sampleAmenities[Math.floor(Math.random() * sampleAmenities.length)],
       gender: getGenderFromName(place.name),
       roomTypes: sampleRoomTypes[Math.floor(Math.random() * sampleRoomTypes.length)],
-      // ❌ REMOVED: Fake price generation is gone
     };
     res.json(formattedHostel);
   } catch (error) {

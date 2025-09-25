@@ -1,21 +1,18 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 import bcrypt from 'bcryptjs';
-import type { IHostel } from './Hostel';
 
 export interface IUser extends Document {
   _id: string; // <--- ADD THIS LINE
   name: string;
   email: string;
   password: string;
-  wishlist: mongoose.Types.ObjectId[] | IHostel[];
   matchPassword(enteredPassword: string): Promise<boolean>;
 }
 
 const userSchema = new Schema<IUser>({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Hostel' }]
+  password: { type: String, required: true }
 }, { timestamps: true });
 
 userSchema.pre('save', async function (next) {

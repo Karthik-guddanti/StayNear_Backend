@@ -15,6 +15,7 @@ export const searchLocation = asyncHandler(async (req: Request, res: Response) =
     query as string
   )}&key=${GOOGLE_API_KEY}`;
 
+
   try {
     const response = await axios.get(url);
     res.json(response.data);

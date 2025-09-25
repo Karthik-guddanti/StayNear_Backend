@@ -1,6 +1,3 @@
-// server/src/seeder.ts
-
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import axios from 'axios';
 import Hostel from './models/Hostel';
@@ -9,7 +6,6 @@ import connectDB from './config/db';
 dotenv.config();
 
 const sampleAmenities = [['AC', 'Laundry'], ['Laundry', 'Gym'], ['AC', 'Gym'], ['AC', 'Laundry', 'Gym']];
-const samplePrices = [6500, 7000, 7500, 8000, 8500, 9000];
 
 // ✅ NEW: Smart function to determine gender from the hostel's name
 const getGenderFromName = (name: string): 'male' | 'female' | 'colive' => {
@@ -65,7 +61,6 @@ const importData = async () => {
       // ✅ FIX: Use the smart function to assign gender based on the name
       gender: getGenderFromName(place.name),
       
-      price: samplePrices[Math.floor(Math.random() * samplePrices.length)],
       amenities: sampleAmenities[Math.floor(Math.random() * sampleAmenities.length)],
     }));
 
@@ -79,9 +74,7 @@ const importData = async () => {
   }
 };
 
-const destroyData = async () => {
-  // ... destroy logic ...
-};
+
 
 // ... script execution logic ...
 const command = process.argv[2];
