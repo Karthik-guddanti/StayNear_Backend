@@ -1,13 +1,13 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
     "dev": "nodemon --watch src --exec ts-node src/index.ts",
     "data:import": "ts-node src/seeder.ts -i",
     "data:destroy": "ts-node src/seeder.ts -d"
-    
   },
   "dependencies": {
     "axios": "^1.11.0",
