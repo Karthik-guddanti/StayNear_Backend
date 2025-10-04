@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "nodemon --watch src --exec ts-node src/index.ts",
+    "dev": "npx nodemon --watch src --exec ts-node src/index.ts",
     "data:import": "ts-node src/seeder.ts -i",
     "data:destroy": "ts-node src/seeder.ts -d"
   },

@@ -7,7 +7,9 @@ dotenv.config();
 
 const sampleAmenities = [['AC', 'Laundry'], ['Laundry', 'Gym'], ['AC', 'Gym'], ['AC', 'Laundry', 'Gym']];
 
-// ✅ NEW: Smart function to determine gender from the hostel's name
+/**
+ * Determines the gender category based on keywords in the hostel's name.
+ */
 const getGenderFromName = (name: string): 'male' | 'female' | 'colive' => {
   const lowerCaseName = name.toLowerCase();
   if (/\b(women|woman|girls|ladies)\b/.test(lowerCaseName)) {
@@ -20,6 +22,9 @@ const getGenderFromName = (name: string): 'male' | 'female' | 'colive' => {
 };
 
 
+/**
+ * Fetches data from the Google Places API and seeds the Hostel collection.
+ */
 const importData = async () => {
   try {
     await connectDB();
@@ -27,7 +32,7 @@ const importData = async () => {
     console.log('🗑️  Old hostel data destroyed.');
 
     const GOOGLE_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
-    const lat = 17.3850;
+    const lat = 17.3850; 
     const lng = 78.4867;
     const radius = 5000;
     const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius}&type=lodging&keyword=hostel|pg&key=${GOOGLE_API_KEY}`;
@@ -36,8 +41,8 @@ const importData = async () => {
     const places = response.data.results;
 
     if (!places || places.length === 0) {
-      console.log('Could not fetch any places from Google.');
-      process.exit();
+      console.log('Could not fetch any places from Google. Check API key and quotas.');
+      process.exit(1);
     }
 
     const hostelsToSave = places.map((place: any) => ({
@@ -58,7 +63,6 @@ const importData = async () => {
         ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${place.photos[0].photo_reference}&key=${process.env.GOOGLE_MAPS_API_KEY}`
         : null,
       
-      // ✅ FIX: Use the smart function to assign gender based on the name
       gender: getGenderFromName(place.name),
       
       amenities: sampleAmenities[Math.floor(Math.random() * sampleAmenities.length)],
@@ -67,16 +71,37 @@ const importData = async () => {
     await Hostel.insertMany(hostelsToSave);
 
     console.log(`✅  Data Imported! ${hostelsToSave.length} hostels were added with smarter gender assignment.`);
-    process.exit();
+    process.exit(0);
   } catch (error) {
-    console.error(`❌  Error seeding data: ${error}`);
+    console.error(`❌  Error seeding data: ${error instanceof Error ? error.message : 'Unknown error'}`);
     process.exit(1);
   }
 };
 
 
+/**
+ * Destroys all existing Hostel data.
+ */
+const destroyData = async () => {
+  try {
+    await connectDB();
+    const result = await Hostel.deleteMany();
+    console.log(`🔥 Data Destroyed! Removed ${result.deletedCount} hostel documents.`);
+    process.exit(0);
+  } catch (error) {
+    console.error(`❌  Error destroying data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    process.exit(1);
+  }
+};
 
-// ... script execution logic ...
+// Command line execution logic
 const command = process.argv[2];
-if (command === '-i') { importData(); }
-// ...
+
+if (command === '-i') { 
+  importData(); 
+} else if (command === '-d') { 
+  destroyData(); 
+} else {
+  console.log("Usage: ts-node src/seeder.ts -i (import) or -d (destroy)");
+  process.exit(1);
+}
